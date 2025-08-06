@@ -7,6 +7,7 @@ import com.example.accessing_data_mysql.DTO.RestaurantDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,6 +29,7 @@ public class User {
     private Long id;
 
     private String name;
+    @Column(unique = true, nullable = false)
     private String email;
     private String password;
     private User_Role role = User_Role.ROLE_CUSTOMER;

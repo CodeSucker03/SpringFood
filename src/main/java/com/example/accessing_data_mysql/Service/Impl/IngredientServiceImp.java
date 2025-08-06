@@ -15,7 +15,7 @@ import com.example.accessing_data_mysql.Service.IngredientService;
 import com.example.accessing_data_mysql.Service.RestaurantService;
 
 @Service
-public class IngredientServiceImp implements IngredientService{
+public class IngredientServiceImp implements IngredientService {
     @Autowired
     private IngredientItemRepository ingredientItemRepository;
 
@@ -28,9 +28,17 @@ public class IngredientServiceImp implements IngredientService{
     @Override
     public IngredientCategory createIngredientCategory(String name, Long restaurantId) throws Exception {
         Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
-        IngredientCategory category = new IngredientCategory();
-        category.setRestaurant(restaurant);
-        category.setName(name);
+        IngredientCategory category = ingredientCategoryRepository.findByName(name);
+
+        if (category == null) {
+            category = new IngredientCategory();
+            category.setName(name);
+        }
+
+        if (!category.getRestaurants().contains(restaurant)) {
+            category.getRestaurants().add(restaurant);
+        }
+
         return ingredientCategoryRepository.save(category);
     }
 
@@ -46,26 +54,39 @@ public class IngredientServiceImp implements IngredientService{
     @Override
     public List<IngredientCategory> findIngredientCategoryByRestaurantId(Long id) throws Exception {
         restaurantService.getRestaurantById(id);
-        return ingredientCategoryRepository.findByRestaurantId(id);
+        return ingredientCategoryRepository.findByRestaurantsId(id);
     }
 
     @Override
     public IngredientsItem createIngredientItem(Long restaurantId, String ingredientName, long categoryId)
             throws Exception {
-                Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
-                IngredientCategory category = findIngredientCategoryById(categoryId);
-                IngredientsItem item = new IngredientsItem();
-                item.setName(ingredientName);
-                item.setRestaurant(restaurant);
-                item.setCategory(category);
-                IngredientsItem ingredient = ingredientItemRepository.save(item);
-                category.getIngredients().add(ingredient);
-                return ingredient;
+        Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
+        IngredientCategory category = findIngredientCategoryById(categoryId);
+        IngredientsItem item = ingredientItemRepository.findByName(ingredientName);
+        if (item == null) {
+            item = new IngredientsItem();
+            item.setName(ingredientName);
+            item.setCategory(category);
+        }
+    
+        // Only add restaurant if not already linked
+        if (!item.getRestaurants().contains(restaurant)) {
+            item.getRestaurants().add(restaurant);
+        }
+    
+        // Only add ingredient if not already linked to category
+        if (!category.getIngredients().contains(item)) {
+            category.getIngredients().add(item);
+        }
+    
+        // Save only the item (cascading should handle category if mapped correctly)
+        return ingredientItemRepository.save(item);
+        
     }
 
     @Override
     public List<IngredientsItem> findRestaurantIngredients(long restaurantId) {
-           return ingredientItemRepository.findByRestaurantId(restaurantId);
+        return ingredientItemRepository.findByRestaurantsId(restaurantId);
     }
 
     @Override
@@ -78,5 +99,16 @@ public class IngredientServiceImp implements IngredientService{
         ingredientsItem.setInStock(!ingredientsItem.isInStock());
         return ingredientItemRepository.save(ingredientsItem);
     }
-    
+
+    @Override
+    public List<IngredientsItem> findAllIngredients() {
+        return ingredientItemRepository.findAll();
+    }
+
+    @Override
+    public List<IngredientCategory> findAll() throws Exception {
+        // TODO Auto-generated method stub
+        return ingredientCategoryRepository.findAll();
+    }
+
 }

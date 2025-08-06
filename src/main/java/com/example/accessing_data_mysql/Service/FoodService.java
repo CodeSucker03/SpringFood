@@ -9,6 +9,7 @@ import com.example.accessing_data_mysql.Request.CreateFoodReq;
 
 public interface FoodService {
     public Food createFood(CreateFoodReq req, Category category,Restaurant restaurant );
+    
     void deleteFood(Long foodId) throws Exception;
 
     public List<Food> getRestaurantFood( Long restuarantId, boolean isSeasonal,
@@ -16,4 +17,5 @@ public interface FoodService {
     public List<Food> searchFood(String keyword);
     public Food findFoodById (Long foodId) throws Exception;
     public Food updateFoodAvailability(Long foodId) throws Exception;
+    public List<Food> getTopFoods();
 }

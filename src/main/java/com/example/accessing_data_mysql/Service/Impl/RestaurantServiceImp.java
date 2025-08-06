@@ -53,42 +53,41 @@ public class RestaurantServiceImp implements RestaurantService {
     }
 
     @Override
-    public Restaurant updateRestaurant(Long restaurantId, CreateRestaurantRequest reqUpdateRestaurant)
-            throws Exception {
+    public Restaurant updateRestaurant(Long restaurantId, CreateRestaurantRequest reqUpdateRestaurant) throws Exception {
         try {
             Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow();
-            if (restaurant.getName() != null) {
+    
+            if (reqUpdateRestaurant.getName() != null) {
                 restaurant.setName(reqUpdateRestaurant.getName());
             }
-
-            if (restaurant.getDescription() != null) {
+    
+            if (reqUpdateRestaurant.getDescription() != null) {
                 restaurant.setDescription(reqUpdateRestaurant.getDescription());
             }
-
-            // if (restaurant.getContact() != null) {
-            // restaurant.setContact(reqUpdateRestaurant.getContact());
-            // }
-
-            if (restaurant.getCuisineType() != null) {
+    
+            if (reqUpdateRestaurant.getContact() != null) {
+                restaurant.setContact(reqUpdateRestaurant.getContact());
+            }
+    
+            if (reqUpdateRestaurant.getCuisineType() != null) {
                 restaurant.setCuisineType(reqUpdateRestaurant.getCuisineType());
             }
-
-            if (restaurant.getOpeningHours() != null) {
+    
+            if (reqUpdateRestaurant.getOpeningHours() != null) {
                 restaurant.setOpeningHours(reqUpdateRestaurant.getOpeningHours());
             }
-
-            // if (restaurant.getImages() != null) {
-            // restaurant.setImages(reqUpdateRestaurant.getImages());
-            // }
-
+    
+            if (reqUpdateRestaurant.getImages() != null) {
+                restaurant.setImages(reqUpdateRestaurant.getImages());
+            }
+    
             return restaurantRepository.save(restaurant);
-
         } catch (Exception e) {
-            // TODO: handle exception
-            throw new UnsupportedOperationException("Unimplemented method 'updateRestaurant'");
-
+            // You can add more custom handling here if needed
+            throw new Exception("Failed to update restaurant with ID: " + restaurantId, e);
         }
     }
+    
 
     @Override
     public void deleteRestaurant(Long restaurantId) throws Exception {
@@ -139,7 +138,7 @@ public class RestaurantServiceImp implements RestaurantService {
             Restaurant restaurant = getRestaurantById(restaurantId);
             RestaurantDto restaurantDto = new RestaurantDto();
             restaurantDto.setDescription(restaurant.getDescription());
-            restaurantDto.setTitle(restaurant.getName());
+            restaurantDto.setName(restaurant.getName());
             restaurantDto.setImages(restaurant.getImages());
             restaurantDto.setId(restaurantId);
 

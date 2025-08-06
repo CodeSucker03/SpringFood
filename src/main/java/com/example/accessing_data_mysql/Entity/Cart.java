@@ -1,5 +1,6 @@
 package com.example.accessing_data_mysql.Entity;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Cart {
     @OneToOne
     private User user;
 
-    private Long total;
+    private BigDecimal total;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();

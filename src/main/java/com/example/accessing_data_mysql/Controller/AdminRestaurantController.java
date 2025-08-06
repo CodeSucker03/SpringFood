@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.accessing_data_mysql.Entity.Event;
 import com.example.accessing_data_mysql.Entity.Restaurant;
 import com.example.accessing_data_mysql.Entity.User;
+import com.example.accessing_data_mysql.Request.CreateEventRequest;
 import com.example.accessing_data_mysql.Request.CreateRestaurantRequest;
 import com.example.accessing_data_mysql.Response.MessageResponse;
+import com.example.accessing_data_mysql.Service.EventService;
 import com.example.accessing_data_mysql.Service.RestaurantService;
 import com.example.accessing_data_mysql.Service.UserService;
 
@@ -27,6 +30,8 @@ public class AdminRestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
+    @Autowired
+    private EventService eventService;
     @Autowired
     private UserService userService;
 
@@ -39,6 +44,18 @@ public class AdminRestaurantController {
         Restaurant restaurant = restaurantService.createRestaurant(req, user);
         return new ResponseEntity<>(restaurant, HttpStatus.CREATED);
     }
+
+    // RESTAURANT EVENTS    
+    @PostMapping("/event")
+    public ResponseEntity<Event> createEvent(
+        @RequestBody CreateEventRequest req,
+        @RequestHeader("Authorization") String jwtToken)
+        throws Exception {
+            User user = userService.findUserByJwtToken(jwtToken);
+            Restaurant restaurant = restaurantService.getRestaurantsByUserId(user.getId());
+            Event event = eventService.createEvent(req, restaurant);
+            return new ResponseEntity<>(event, HttpStatus.CREATED);
+        }
 
     @PutMapping("/{restaurantId}")
     public ResponseEntity<Restaurant> updateRestaurant(

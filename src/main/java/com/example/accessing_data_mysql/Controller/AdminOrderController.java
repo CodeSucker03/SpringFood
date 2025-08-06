@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.accessing_data_mysql.Entity.Order;
+import com.example.accessing_data_mysql.Entity.OrderItem;
+import com.example.accessing_data_mysql.Entity.OrderStatus;
 import com.example.accessing_data_mysql.Entity.User;
 import com.example.accessing_data_mysql.Request.OrderRequest;
 import com.example.accessing_data_mysql.Service.OrderService;
@@ -24,27 +26,50 @@ import com.example.accessing_data_mysql.Service.UserService;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminOrderController {
-     @Autowired
+    @Autowired
     private OrderService orderService;
+
     @Autowired
     private UserService userService;
 
-
     @GetMapping("/order/restaurant/{id}")
-    public ResponseEntity<List<Order>> getOrderHistory(@PathVariable Long id,
-    @RequestParam(required = false) String orderStatus,
-    @RequestHeader("Authorization") String jwt) throws Exception{
+    public ResponseEntity<List<OrderItem>> getOrderHistory(
+            @PathVariable Long id,
+            @RequestParam(required = false) String orderStatus,
+            @RequestHeader("Authorization") String jwt) throws Exception {
+
         User user = userService.findUserByJwtToken(jwt);
-        List<Order> order = orderService.getRestaurantOrder(id, orderStatus);
-        return new ResponseEntity<>(order, HttpStatus.OK);
+
+        OrderStatus status = null;
+        if (orderStatus != null) {
+            try {
+                status = OrderStatus.valueOf(orderStatus.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new Exception("Invalid order status: " + orderStatus);
+            }
+        }
+
+        List<OrderItem> orderItem = orderService.getRestaurantOrderItem(id, status);
+        return new ResponseEntity<>(orderItem, HttpStatus.OK);
     }
 
     @PutMapping("/order/{id}/{orderStatus}")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id,
-    @PathVariable String orderStatus,
-    @RequestHeader("Authorization") String jwt) throws Exception{
+    public ResponseEntity<OrderItem> updateOrderStatus(
+            @PathVariable Long id,
+            @PathVariable String orderStatus,
+            @RequestHeader("Authorization") String jwt) throws Exception {
+
         User user = userService.findUserByJwtToken(jwt);
-        Order order = orderService.updateOrder(id, orderStatus);
+
+        OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(orderStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Invalid order status: " + orderStatus);
+        }
+
+        OrderItem order = orderService.updateOrder(id, status);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
+
 }

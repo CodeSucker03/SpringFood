@@ -7,7 +7,6 @@ import lombok.Data;
 @Embeddable
 public class ContactInfo {
     private String email;
-    private String phone;
     private String facebook;
 
 }

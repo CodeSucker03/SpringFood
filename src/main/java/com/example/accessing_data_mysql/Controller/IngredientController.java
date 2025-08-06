@@ -22,6 +22,7 @@ import com.example.accessing_data_mysql.Service.IngredientService;
 @RestController
 @RequestMapping("/api/admin/ingredient")
 public class IngredientController {
+    
     @Autowired
     private IngredientService ingredientService;
 
@@ -49,6 +50,18 @@ public class IngredientController {
     public ResponseEntity<List<IngredientsItem>> getRestaurantIngredient(@PathVariable Long id) throws Exception {
         List<IngredientsItem> items = ingredientService.findRestaurantIngredients(id);
         return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<IngredientsItem>> getAllIngredient() throws Exception {
+        List<IngredientsItem> items = ingredientService.findAllIngredients();
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+
+    @GetMapping("/category/all")
+    public ResponseEntity<List<IngredientCategory>> getAllIngredientCategory() throws Exception {
+        List<IngredientCategory> ingredientCategories = ingredientService.findAll();
+        return new ResponseEntity<>(ingredientCategories, HttpStatus.OK);
     }
 
     @GetMapping("/restaurant/{id}/category")

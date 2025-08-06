@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.accessing_data_mysql.Entity.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    public List<Category> findByRestaurantId(Long id);
+    public List<Category> findByRestaurantsId(Long id);
+    Category findByName(String name);
 
 }

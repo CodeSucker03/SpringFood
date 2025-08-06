@@ -1,5 +1,7 @@
 package com.example.accessing_data_mysql.Service.Impl;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +16,7 @@ import com.example.accessing_data_mysql.Entity.Cart;
 import com.example.accessing_data_mysql.Entity.CartItem;
 import com.example.accessing_data_mysql.Entity.Order;
 import com.example.accessing_data_mysql.Entity.OrderItem;
+import com.example.accessing_data_mysql.Entity.OrderStatus;
 import com.example.accessing_data_mysql.Entity.Restaurant;
 import com.example.accessing_data_mysql.Entity.User;
 import com.example.accessing_data_mysql.Repo.AddressRepository;
@@ -50,17 +53,19 @@ public class OrderServiceImp implements OrderService {
         Address shipAddress = order.getDeliveryAddress();
         Address savedAddress = addressRepository.save(shipAddress);
 
-        if (!user.getAddress().equals(savedAddress)) {
-            user.setAddress(savedAddress);
-            userRepository.save(user);
-        }
-        Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId());
+        // if (!user.getAddress().equals(savedAddress)) {
+        // user.setAddress(savedAddress);
+        // userRepository.save(user);
+        // }
+        // Restaurant restaurant =
+        // restaurantService.getRestaurantById(order.getRestaurantId());
         Order createOrder = new Order();
         createOrder.setCustomer(user);
-        createOrder.setCreatedAt(new Date());
-        createOrder.setOrderStatus("PENDING");
+        createOrder.setCreatedAt(LocalDateTime.now());
         createOrder.setDeliveryAddress(savedAddress);
-        createOrder.setRestaurant(restaurant);
+
+        // Save it to get a persistent reference with an ID
+        Order savedOrder = orderRepository.save(createOrder);
 
         Cart cart = cartService.findCartByUserId(user.getId());
 
@@ -71,30 +76,28 @@ public class OrderServiceImp implements OrderService {
             orderItem.setFood(item.getFood());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setTotalPrice(item.getTotalPrice());
+            orderItem.setOrderStatus(OrderStatus.PENDING);
+            orderItem.setIngredients(item.getIngredients());
+            orderItem.setRestaurant(item.getRestaurant());
+            orderItem.setOrder(savedOrder);
             OrderItem savedOrderItem = orderItemRepository.save(orderItem);
+            // restaurant.getOrderItems().add(savedOrderItem);
             orderItems.add(savedOrderItem);
         }
-        Long totalPrice = cartService.calculateCartTotals(cart);
-        createOrder.setItems(orderItems);
-        createOrder.setTotalPrice(totalPrice);
+        BigDecimal totalPrice = cartService.calculateCartTotals(cart);
+        savedOrder.setItems(orderItems);
+        savedOrder.setTotalPrice(totalPrice);
 
-        Order savedOrder = orderRepository.save(createOrder);
-        restaurant.getOrders().add(savedOrder);
-        return createOrder;
-
+        return orderRepository.save(savedOrder);
     }
 
     @Override
-    public Order updateOrder(long orderId, String orderStatus) throws Exception {
-        Order order = findOrderById(orderId);
-        if (orderStatus.equalsIgnoreCase("OUT_FOR_DELIVERY")
-                || orderStatus.equalsIgnoreCase("DELIVERED")
-                || orderStatus.equalsIgnoreCase("COMPLETED")
-                || orderStatus.equalsIgnoreCase("PENDING")) {
-            order.setOrderStatus(orderStatus);
-            return orderRepository.save(order);
-        }
-        throw new Exception("SELECT VALID order STATUS");
+    public OrderItem updateOrder(long orderId, OrderStatus orderStatus) throws Exception {
+        OrderItem order = orderItemRepository.findById(orderId)
+                .orElseThrow(() -> new Exception("Order not found"));
+        order.setOrderStatus(orderStatus);
+        return orderItemRepository.save(order);
+
     }
 
     @Override
@@ -109,13 +112,14 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public List<Order> getRestaurantOrder(Long restaurantId, String orderStatus) throws Exception {
-        List<Order> orders = orderRepository.findByRestaurantId(restaurantId);
+    public List<OrderItem> getRestaurantOrderItem(Long restaurantId, OrderStatus orderStatus) throws Exception {
+        List<OrderItem> ordersItem = orderItemRepository.findByRestaurantId(restaurantId);
         if (orderStatus != null) {
-            orders = orders.stream().filter(order -> order.getOrderStatus().equals(orderStatus))
+            ordersItem = ordersItem.stream()
+                    .filter(orderItem -> orderItem.getOrderStatus() == orderStatus)
                     .collect(Collectors.toList());
         }
-        return orders;
+        return ordersItem;
     }
 
     @Override

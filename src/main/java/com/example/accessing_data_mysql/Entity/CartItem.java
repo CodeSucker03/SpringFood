@@ -1,6 +1,7 @@
 package com.example.accessing_data_mysql.Entity;
 
-
+import java.math.BigDecimal;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -19,9 +20,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO) 
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     @ManyToOne
     @JsonIgnore
     private Cart cart;
@@ -29,10 +30,16 @@ public class CartItem {
     @ManyToOne
     private Food food;
 
+    private List<String> ingredients;
+
+    @ManyToOne
+    @JsonIgnore
+    private Restaurant restaurant;
+
     private int quantity;
 
     // private List<String> ingredients;
 
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
 }

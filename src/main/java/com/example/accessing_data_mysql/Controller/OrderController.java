@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.accessing_data_mysql.Entity.CartItem;
 import com.example.accessing_data_mysql.Entity.Order;
 import com.example.accessing_data_mysql.Entity.User;
 import com.example.accessing_data_mysql.Request.OrderRequest;
@@ -34,23 +33,23 @@ public class OrderController {
     private UserService userService;
 
 
-    // USE PAYMENT METHOD
-    @PostMapping("/order")
-    public ResponseEntity<PaymentResponse> createOrder(@RequestBody OrderRequest req,
-    @RequestHeader("Authorization") String jwt) throws Exception{
-        User user = userService.findUserByJwtToken(jwt);
-        Order order = orderService.createOrder(req, user);
-        PaymentResponse response = paymentService.createPaymentLink(order);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-    // DEFAULT 
+    // // USE PAYMENT METHOD
     // @PostMapping("/order")
-    // public ResponseEntity<Order> createOrder(@RequestBody OrderRequest req,
+    // public ResponseEntity<PaymentResponse> createOrder(@RequestBody OrderRequest req,
     // @RequestHeader("Authorization") String jwt) throws Exception{
     //     User user = userService.findUserByJwtToken(jwt);
     //     Order order = orderService.createOrder(req, user);
-    //     return new ResponseEntity<>(order, HttpStatus.CREATED);
+    //     PaymentResponse response = paymentService.createPaymentLink(order);
+    //     return new ResponseEntity<>(response, HttpStatus.OK);
     // }
+    // DEFAULT 
+    @PostMapping("/order")
+    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest req,
+    @RequestHeader("Authorization") String jwt) throws Exception{
+        User user = userService.findUserByJwtToken(jwt);
+        Order order = orderService.createOrder(req, user);
+        return new ResponseEntity<>(order, HttpStatus.CREATED);
+    }
 
     @GetMapping("/order/user")
     public ResponseEntity<List<Order>> getOrderHistory(
@@ -59,5 +58,6 @@ public class OrderController {
         List<Order> order = orderService.getUserOrder(user.getId());
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
+    
 
 }

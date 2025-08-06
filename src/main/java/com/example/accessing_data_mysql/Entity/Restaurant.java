@@ -36,6 +36,7 @@ public class Restaurant {
     @JsonIgnoreProperties({ "id", "password", "email", "orders", "address", "favorites", "status" })
     private User owner;
 
+    @Column(unique = true, nullable = false)
     private String name;
     private String description;
 
@@ -47,10 +48,10 @@ public class Restaurant {
     @Embedded
     private ContactInfo contact;
     private String openingHours;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Order> orders = new ArrayList<>();
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @ElementCollection
     @Column(length = 1000)
@@ -62,5 +63,9 @@ public class Restaurant {
     @JsonIgnore
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Food> menu = new ArrayList<>();
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> events = new ArrayList<>();
 
 }

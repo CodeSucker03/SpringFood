@@ -21,18 +21,31 @@ public class CategoryServiceImp implements CategoryService {
     private RestaurantService restaurantService;
 
     @Override
-    public Category createCategory(String name, Long userId) throws Exception {
+    public Category createCategory(Category name, Long userId) throws Exception {
         Restaurant restaurant = restaurantService.getRestaurantsByUserId(userId);
-        Category category = new Category();
-        category.setName(name);
-        category.setRestaurant(restaurant);
+
+        // Check if the category already exists
+        Category category = categoryRepository.findByName(name.getName());
+    
+        if (category == null) {
+            // If not exists, create a new one
+            category = new Category();
+            category.setName(name.getName());
+        }
+    
+        // Add restaurant if not already associated
+        if (!category.getRestaurants().contains(restaurant)) {
+            category.getRestaurants().add(restaurant);
+        }
+    
         return categoryRepository.save(category);
     }
 
+    // 
     @Override
     public List<Category> findCategoryByRestaurantId(Long id) throws Exception {
-        // Restaurant restaurant = restaurantService.getRestaurantsByUserId(id);
-     return categoryRepository.findByRestaurantId(id);
+        // Restaurant restaurant = restaurantService.findByRestaurantById(id);
+     return categoryRepository.findByRestaurantsId(id);
     }
 
     @Override
@@ -42,6 +55,16 @@ public class CategoryServiceImp implements CategoryService {
             throw new Exception("Category not found");
         }
         return category.get();
+    }
+
+    @Override
+    public List<Category> findAllCategories() throws Exception {
+        List<Category> categories = categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            throw new Exception("No categories found");
+        }       
+         return categories;
+        // TODO Auto-generated method stub
     }
     
 }

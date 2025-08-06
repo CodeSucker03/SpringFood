@@ -43,14 +43,15 @@ public class AdminFoodController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponse> deleteFood(@PathVariable Long id,
+    public ResponseEntity<Food> deleteFood(@PathVariable Long id,
             @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
+        Food food = foodService.findFoodById(id);
         foodService.deleteFood(id);
-        MessageResponse res = new MessageResponse();
-        res.setMessage("Food deleted");
+        // MessageResponse res = new MessageResponse();
+        // res.setMessage("Food deleted");
 
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(food, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.example.accessing_data_mysql.Service.Impl;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,7 @@ public class PaymentServiceImp implements PaymentService {
                                 .setPriceData(
                                         SessionCreateParams.LineItem.PriceData.builder()
                                                 .setCurrency("usd")
-                                                .setUnitAmount((long) order.getTotalPrice() * 100)
+                                                .setUnitAmountDecimal( order.getTotalPrice().multiply(BigDecimal.valueOf(100)))
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("My Food")

@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.accessing_data_mysql.Entity.IngredientsItem;
 
 public interface IngredientItemRepository extends JpaRepository<IngredientsItem, Long> {
-    List<IngredientsItem> findByRestaurantId(Long id);
+    List<IngredientsItem> findByRestaurantsId(Long id);
+    IngredientsItem findByName(String name);
 }

@@ -29,12 +29,13 @@ public class CartController {
     @Autowired
     private UserService userService;
 
-    @PutMapping("/cart/add")
+    @PutMapping("/cart/add/{restaurantId}")
     public ResponseEntity<CartItem> addItemtoCart(
         @RequestBody AddCartItemRequest req, 
+        @PathVariable Long restaurantId,
         @RequestHeader("Authorization") String jwt
     ) throws Exception{
-        CartItem cartItem = cartService.addItemToCart(req, jwt);
+        CartItem cartItem = cartService.addItemToCart(req, jwt, restaurantId);
         return new ResponseEntity<>(cartItem, HttpStatus.OK);
     }
 
@@ -43,7 +44,7 @@ public class CartController {
         @RequestBody UpdateCartItemRequest req, 
         @RequestHeader("Authorization") String jwt
     ) throws Exception{
-        CartItem cartItem = cartService.updateCartItemQuantity(req.getCartItemid(), req.getQuantity());
+        CartItem cartItem = cartService.updateCartItemQuantity(req.getCartItemId(), req.getQuantity());
         return new ResponseEntity<>(cartItem, HttpStatus.OK);
     }
 

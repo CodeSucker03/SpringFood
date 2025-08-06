@@ -23,6 +23,7 @@ public class FoodServiceImp implements FoodService {
     public Food createFood(CreateFoodReq req, Category category, Restaurant restaurant) {
         Food food = new Food();
         food.setFoodCategory(category);
+        food.setPrice(req.getPrice());
         food.setRestaurant(restaurant);
         food.setDescription(req.getDescription());
         food.setImage(req.getImage());
@@ -38,10 +39,13 @@ public class FoodServiceImp implements FoodService {
     @Override
     public void deleteFood(Long foodId) throws Exception {
         try {
-            Food food = findFoodById(foodId);
-            food.setRestaurant(null);
-            foodRepository.save(food);
+            Food food = foodRepository.findById(foodId)
+                    .orElseThrow(() -> new RuntimeException("Food not found"));
 
+            food.getIngredients().clear(); // just unlinks the join table
+
+            foodRepository.save(food); // updates DB
+            foodRepository.delete(food); // deletes the food
         } catch (Exception e) {
             throw new UnsupportedOperationException("Unimplemented method 'deleteFood'" + e.getMessage());
         }
@@ -49,7 +53,7 @@ public class FoodServiceImp implements FoodService {
 
     @Override
     public List<Food> getRestaurantFood(Long restuarantId,
-     boolean isSeasonal, String foodCategory) {
+            boolean isSeasonal, String foodCategory) {
         // TODO Auto-generated method stub
         List<Food> foods = foodRepository.findByRestaurantId(restuarantId);
         if (isSeasonal) {
@@ -81,11 +85,11 @@ public class FoodServiceImp implements FoodService {
 
     @Override
     public Food findFoodById(Long foodId) throws Exception {
-       Optional<Food> optionalFood = foodRepository.findById(foodId);
-       if (optionalFood.isEmpty()) {
-        throw new Exception("Food not found");
-       }
-       return optionalFood.get();
+        Optional<Food> optionalFood = foodRepository.findById(foodId);
+        if (optionalFood.isEmpty()) {
+            throw new Exception("Food not found");
+        }
+        return optionalFood.get();
     }
 
     @Override
@@ -93,6 +97,12 @@ public class FoodServiceImp implements FoodService {
         Food food = findFoodById(foodId);
         food.setAvailable(!food.isAvailable());
         return foodRepository.save(food);
+    }
+
+    @Override
+    public List<Food> getTopFoods() {
+        // TODO Auto-generated method stub
+        return foodRepository.findTopFoods();
     }
 
 }
